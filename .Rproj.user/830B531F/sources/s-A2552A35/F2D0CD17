@@ -1,0 +1,26 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1596818108057.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1434457513",
+    "id" : "F2D0CD17",
+    "lastKnownWriteTime" : 1596819436,
+    "last_content_update" : 1596819436753,
+    "path" : "~/Documents/GitHub/sc_pipeline/SCoPE2_analysis_general.R",
+    "project_path" : "SCoPE2_analysis_general.R",
+    "properties" : {
+        "cursorPosition" : "415,0",
+        "disableDependencyDiscovery" : "1",
+        "scrollLine" : "401"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
