@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1596822165129.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "704539549",
+    "id" : "579EE132",
+    "lastKnownWriteTime" : 1596823507,
+    "last_content_update" : 1596823507184,
+    "path" : "~/Documents/GitHub/sc_pipeline/functions_parameters.R",
+    "project_path" : "functions_parameters.R",
+    "properties" : {
+        "cursorPosition" : "84,0",
+        "scrollLine" : "66"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

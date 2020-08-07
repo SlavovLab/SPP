@@ -1,15 +1,14 @@
+## If installing impute or sva for the first time, uncomment the 3 lines below:
 
+# if (!requireNamespace("BiocManager", quietly = TRUE))
+#   install.packages("BiocManager")
+# BiocManager::install("impute", version = "3.8")
+# BiocManager::install("genefilter")
+# n
 
 ### Code settigngs:
 
-
-ref_demo<-F
-
-
 my_col2<-c("blue",rgb(0,0,1,0.5),"white",rgb(1,0,0,0.5),"red")
-
-# FDR or PEP filtering?
-fdr<-T
 
 # Remove peptides that are more abundant that 10% of the carrier channel from the single cell runs
 remove_abundant_peptides<-T
@@ -17,35 +16,12 @@ remove_abundant_peptides<-T
 # Use dart-enhanced spectra or spectra
 dart_or_spectra<-"dart"
 
-# Normalize the 10 x 10 cell and 10 x 100 cell runs to their median value
-norm_10_100_median<-T
-
-# Only look at sets FP94+97 (same experiment, sorted onto two different 384-well plates)
-only_fp94_97<-T
-
-# Load the data fresh from search output, else use saved version (.RData, which is quicker to load)
-load_fresh<-F
-
-# Correct for isotopic cross-contamination from TMT11 -- this will not work properly because MQ did the correction already
-# for the data I am using
-iso_cor<-F
-
-# Minimum number of peptides observed to consider an experiment worth doing further analysis:
-thres_ids_sc <- 300
-thres_ids_c10c100 <- 200
-
-# Save data along the way?
-save_tmp <- F
 
 # Figure dimensions in inches
 w.t<-5
 h.t<-5
 
 my_colors<-c("black","#048ABF","#FF5733")
-
-
-# Figure dir:
-#save.path<-"G:/My Drive/2018_mPOP/2018_mPOP/Figs/fig3/"
 
 # Filter to less than X missing data per column or row:
 na.col<-0.99
@@ -85,13 +61,7 @@ if(any(!req.pkg%in%present.pkg)){
 
 }
 
-## If installing impute or sva for the first time, uncomment the 3 lines below:
 
-# if (!requireNamespace("BiocManager", quietly = TRUE))
-#   install.packages("BiocManager")
- # BiocManager::install("impute", version = "3.8")
-#BiocManager::install("genefilter")
-#BiocManager::install("sva")
 
 
 ####################################################################################################################################

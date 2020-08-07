@@ -1,26 +1,35 @@
-source("code/functions_parameters.R")
+source("functions_parameters.R")
+
+# User specific
+
+# Reference channel number (1-11, or 1-16)
+ref_channel<-2
+
+# Add your cell type labels, must match those used in experimental design
+your_labels<-c("sc","control")
+your_control_label<-"control"
 
 # Import ------------------------------------------------------------------
 
 # Load raw data 
 
-  ev<-read_csv("dat/ev_tmt11_tmt16_2.csv")
+  ev<-read.table("IZ_sets.txt", header = TRUE)
 
   
 # Parse sp|Q00000|HUMAN_XXX into just Uniprot accession: Q00000  
   
   parse_row<-grep("|",ev$Leading.razor.protein, fixed=T)
-
-  split_prot<-str_split(ev$Leading.razor.protein[parse_row], pattern = fixed("|"))
-  split_prot2<-unlist(split_prot)[seq(2,3*length(split_prot),3)]
-
-  ev$Leading.razor.protein[parse_row]<-split_prot2
-
+  
+  if(length(parse_row)>0){
+    split_prot<-str_split(ev$Leading.razor.protein[parse_row], pattern = fixed("|"))
+    split_prot2<-unlist(split_prot)[seq(2,3*length(split_prot),3)]
+    ev$Leading.razor.protein[parse_row]<-split_prot2
+  }
 # Load experimental design and batches
   
-  design<-read.csv("dat/annotation.csv")
+  design<-read.csv("annotation.csv")
 
-  batch<-read.csv("dat/batch.csv")
+  batch<-read.csv("batch.csv")
 
   # Attach batch data to protein data
   ev[,colnames(batch)[-1]]<-NA
@@ -53,26 +62,26 @@ ev<-ev[-which(ev$Reverse=="+"),]
 if(length(grep("REV", ev$Leading.razor.protein))>0){ ev<-ev[-grep("REV", ev$Leading.razor.protein),] }
 if(length(grep("CON", ev$Leading.razor.protein))>0){ ev<-ev[-grep("CON", ev$Leading.razor.protein),] }
 if(length(which(ev$Potential.contaminant=="+"))>0){ ev<-ev[-which(ev$Potential.contaminant=="+"),] }
-ev_standard_filtering<-ev[,c("Raw.file","dart_PEP","Leading.razor.protein","PEP")]
 ev<-ev[!is.na(ev$PIF),]
 ev<-ev[ev$PIF>0.8,]
 
 # Remove peptides that are more the 10% the intensity of the carrier in the single cell runs (only)
 ev<-as.data.frame(ev)
 ev$mrri<-0
-ev$mrri <- rowMeans(ev[, ri.index[4:16]] / ev[, ri.index[1]], na.rm = T)
+ev$mrri <- rowMeans(ev[, ri.index[4:length(ri.index)]] / ev[, ri.index[1]], na.rm = T)
 ev<-ev[ev$mrri < 0.1, ]
 
 
 # Filter by PEP or FDR: CHOOSE ONE
 
 # ev<-ev[ev$dart_PEP<0.02, ]
-# ev<-ev[ev$PEP<0.02, ]
+ ev<-ev[ev$PEP<0.02, ]
 # ev<-ev[calc_fdr(ev$dart_PEP)<0.01, ]
 # ev<-ev[calc_fdr(ev$PEP)<0.01, ]
 
 
 # # Use either DART PEP or spectral PEP to calculate FDR on a per peptide basis 
+# (Used for SCoPE2 manuscript)
 # 
 # if(dart_or_spectra=="dart"){
 # 
@@ -91,7 +100,7 @@ ev<-ev[ev$mrri < 0.1, ]
 
 # Normalize single cell runs to normalization channel
 ev<-as.data.frame(ev)
-ev[ev$Raw.file%in%sc.runs, ri.index] <- ev[ev$Raw.file%in%sc.runs, ri.index] / ev[ev$Raw.file%in%sc.runs, ri.index[2]]
+ev[, ri.index] <- ev[, ri.index] / ev[, ri.index[ref_channel]]
 
 
 # Organize data into a more convenient data structure:
@@ -107,7 +116,7 @@ ct.v<-c()
 qt.v<-c()
 
 # Create a unique ID string
-unique.id.numeric<-1:16
+unique.id.numeric<-1:length(ri.index)
 unique.id<-paste0("i",unique.id.numeric)
 
 RI_keep<-ri.index
@@ -118,18 +127,8 @@ for(X in unique(ev$Raw.file)){
   # Subset data by X'th experiment
   ev.t<-ev[ev$Raw.file%in%X, ]
 
-  if(is.na(X)){next}
-
   # Name the RI columns by what sample type they are: carrier, single cell, unused, etc...
   colnames(ev.t)[ri.index]<-paste0(as.character(unlist(design[design$Set==X,-1])),"-", unique.id)
-
-  if(length(RI_keep)>0){
-
-    if( X%in%c(c10.runs, c100.runs) ){
-
-      ev.t[,RI_keep]<-ev.t[,RI_keep] / apply(ev.t[, RI_keep], 1, median.na)
-
-    }
 
     # Melt it! and combine with other experimental sets
     ev.t.melt<-melt(ev.t[, c("Raw.file","modseq","Leading.razor.protein","lcbatch","sortday","digest", colnames(ev.t)[RI_keep]) ],
@@ -143,10 +142,8 @@ for(X in unique(ev$Raw.file)){
 
     ev.melt<-rbind(ev.melt, ev.t.melt)
 
-  }
-
   # Update unique ID string
-  unique.id.numeric<-unique.id.numeric + 16
+  unique.id.numeric<-unique.id.numeric + length(ri.index)
   unique.id<-paste0("i", unique.id.numeric)
 
 }
@@ -177,12 +174,11 @@ ev.matrix[ev.matrix==0]<-NA
 ev.matrix[ev.matrix==Inf]<-NA
 ev.matrix[ev.matrix==-Inf]<-NA
 
-# Add your cell type labels, must match those used in experimental design
-your_labels<-c("sc_m0","sc_u","sc_0") # Macrophage, monocyte, blank
+
 
 # Divide matrix into single cells (including intentional blanks) and carriers
-sc_cols<-unique(ev.melt$id[(ev.melt$celltype%in%c(your_labels))&(ev.melt$Raw.file%in%sc.runs)])
-ev.matrix.sc<-ev.matrix[, sc_cols]
+sc_cols<-unique(ev.melt$id[(ev.melt$celltype%in%c(your_labels))])
+ev.matrix.sc<-ev.matrix[, colnames(ev.matrix)%in%sc_cols]
 
 
 
@@ -195,10 +191,6 @@ sc.melt<-ev.melt
 xd<-as_tibble( sc.melt )
 
 xd <- xd %>% group_by(id) %>% mutate(med_per_c = median(quantitation, na.rm=T)); length(unique(xd$id))
-
-if(ref_demo==F){
-  xd <- xd %>% filter(med_per_c > 1/50); length(unique(xd$id))
-}
 
 length(unique(xd$id))
 
@@ -229,41 +221,36 @@ xd5<- xd4 %>%
 xd6<- xd5 %>%
   filter(cvn > 5)
 
-#length(unique(ev.melt$Raw.file[ev.melt$id%in%colnames(ev.matrix.sc.f)]))
 
 xd7<-xd6 %>% group_by(id) %>% mutate(cvm=median(cvq, na.rm=T))
 
 xdf<-xd7
 
-hist(unique(xdf$cvm[xdf$celltype!="sc_0"]), col=rgb(0,1,0,1/4), prob=T, breaks=50, main = "X single cells ", xlab="CV")
-hist(unique(xdf$cvm[xdf$celltype=="sc_0"]), col=rgb(1,0,0,1/4), prob=T, add=T, breaks=40)
-
-#remove_sets<-unique( ev.melt$Raw.file[ev.melt$id%in%unique(xdf$id[xdf$celltype=="sc_0" & xdf$cvm < 0.35])] )
-#xdf<-xdf[!xdf$Raw.file%in%remove_sets, ]
+hist(unique(xdf$cvm[xdf$celltype!=your_control_label]), col=rgb(0,1,0,1/4), prob=T, breaks=50, main = "X single cells ", xlab="CV")
+hist(unique(xdf$cvm[xdf$celltype==your_control_label]), col=rgb(1,0,0,1/4), prob=T, add=T, breaks=40)
 
 
-#length(unique(xdf$id[xdf$celltype!="sc_0" & xdf$cvm < 0.35]))
-kid<-(unique(xdf$id[xdf$celltype!="sc_0" & xdf$cvm < 0.4]))
-#kid<-(unique(xdf$id[xdf$cvm < 0.35]))
+# USER TUNED
 
-hist(unique(xdf$cvm[xdf$celltype!="sc_0"]), col=rgb(0,1,0,1/4), prob=T, breaks=50, main = "X single cells ", xlab="CV")
-hist(unique(xdf$cvm[xdf$celltype=="sc_0"]), col=rgb(1,0,0,1/4), prob=T, add=T, breaks=40)
+hist(unique(xdf$cvm[xdf$celltype!=your_control_label]), col=rgb(0,1,0,1/4), prob=T, breaks=50, main = "X single cells ", xlab="CV")
+hist(unique(xdf$cvm[xdf$celltype==your_control_label]), col=rgb(1,0,0,1/4), prob=T, add=T, breaks=40)
 
-sc0_kept<-unique( xdf$id[xdf$celltype=="sc_0" & xdf$cvm < 0.4])
-sc0_total<-unique( xdf$id[xdf$celltype=="sc_0"])
-sc0rate<-round(length(sc0_kept) / length(sc0_total),2)*100
+# Filter out varaible wells and controls
+sc_kept<-unique( xdf$id[xdf$celltype!=your_control_label & xdf$cvm < 0.4])
 
-sc_kept<-unique( xdf$id[xdf$celltype!="sc_0" & xdf$cvm < 0.4])
-sc_total<-unique( xdf$id[xdf$celltype!="sc_0"])
+# Which wells to keep
+keep_these<-unique( xdf$id)
+
+sc_total<-unique( xdf$id[xdf$celltype!=your_control_label])
 scrate<-round(length(sc_kept) / length(sc_total),2)*100
 
-ev.matrix.sc.f<-ev.matrix.sc[,colnames(ev.matrix.sc)%in%kid]; dim(ev.matrix.sc.f)
+ev.matrix.sc.f<-ev.matrix.sc[,colnames(ev.matrix.sc)%in%sc_kept]; dim(ev.matrix.sc.f)
 ev.matrix.sc.f[ev.matrix.sc.f==Inf]<-NA
 ev.matrix.sc.f[ev.matrix.sc.f==-Inf]<-NA
 ev.matrix.sc.f[ev.matrix.sc.f==0]<-NA
 
 xdf$control<-"sc"
-xdf$control[xdf$celltype=="sc_0"]<-"ctl"
+xdf$control[xdf$celltype==your_control_label]<-"ctl"
 
 my_col3<-c( "black", "purple2")
 
@@ -273,13 +260,14 @@ ggplot(data=xdf, aes(x=cvm)) + geom_density(aes(fill=control, alpha=0.5), adjust
   xlab("Quantification variability") + ylab("Density") + rremove("y.ticks") + rremove("y.text") +
   font("xylab", size=35) +
   font("x.text", size=30) +
+  coord_cartesian(xlim=c(0,1))+
   #xlim(c(-0.15, 0.35)) +
   # annotate("text", x=0.27, y= 14, label=paste0(scrate,"% single cells passed"), size=8, color=my_col3[c(2)])+
   # annotate("text", x=0.27, y= 12.5, label=paste0(sc0rate,"% control wells passed"), size=8, color=my_col3[c(1)])+
-  annotate("text", x=0.272, y= 14, label=paste0(length(sc_kept)," single cells"), size=10, color=my_col3[c(2)])+
-  annotate("text", x=0.265, y= 12, label=paste0(length(sc0_kept)," control wells"), size=10, color=my_col3[c(1)])+
-  annotate("text", x=0.5, y= 14, label=paste0(length(sc_total) -length(sc_kept)," single cells"), size=10, color=my_col3[c(2)])+
-  annotate("text", x=0.5, y= 12, label=paste0(length(sc0_total) - length(sc0_kept)," control wells"), size=10, color=my_col3[c(1)])+
+  annotate("text", x=0.172, y= 14, label=paste0(length(sc_kept)," single cells"), size=10, color=my_col3[c(2)])+
+  annotate("text", x=0.165, y= 12, label=paste0(length(sc0_kept)," control wells"), size=10, color=my_col3[c(1)])+
+  annotate("text", x=0.6, y= 14, label=paste0(length(sc_total) -length(sc_kept)," single cells"), size=10, color=my_col3[c(2)])+
+  annotate("text", x=0.6, y= 12, label=paste0(length(sc0_total) - length(sc0_kept)," control wells"), size=10, color=my_col3[c(1)])+
   #annotate("text", x=0.25, y= 3, label="Macrophage-like", size=6) +
   rremove("legend") + geom_vline(xintercept=0.4, lty=2, size=2, color="gray50")
 
@@ -317,7 +305,6 @@ t3[t3==-Inf]<-NA
 t3[t3==0]<-NA
 hist(c(t3), breaks=b.t, xlim=xlim.t)
 
-mean(ncol(t3)-na.count(t3))
 
 # # Collapse to protein level by median:
 t3m<-data.frame(t3)
@@ -337,7 +324,6 @@ hist(c(t4b), breaks=b.t, xlim=xlim.t)
 # Assign to a final variable name:
 ev.matrix.sc.f.n<-t4b
 
-mean(ncol(ev.matrix.sc.f.n)-na.count(ev.matrix.sc.f.n))
 
 
 ## Impute single celldata
@@ -438,8 +424,8 @@ ggscatter(pca.display, x =PCx, y = PCy , color="celltype", size = 2, alpha=0.5) 
   font("xy.text", size=20) +
   rremove("legend") +
   scale_color_manual(values = my_colors[2:3]) +
-  annotate("text", x=-0.025, y=0.21,label="Macrophage", color=my_colors[2], size=10)  +
-  annotate("text", x=0.03, y=0.21, label="Monocyte", color=my_colors[3], size=10) +
+  #annotate("text", x=-0.025, y=0.21,label=your_control_label, color=my_colors[2], size=10)  +
+  #annotate("text", x=0.03, y=0.21, label="Monocyte", color=my_colors[3], size=10) +
   annotate("text", x=0.05-0.02, y=-0.155, label=paste0(dim(mat.sc.imp)[1], " proteins"), size=8) +
   annotate("text", x=0.062-0.03, y=-0.11, label=paste0(dim(mat.sc.imp)[2], " cells"), size=8)
 

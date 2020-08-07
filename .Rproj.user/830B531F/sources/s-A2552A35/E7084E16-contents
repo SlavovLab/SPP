@@ -1,0 +1,94 @@
+interp.df$agc<-"high"
+interp.df1$agc<-"ctl"
+
+interp.df3<-rbind(interp.df1, interp.df)
+
+
+
+idf.c$agc<-"high"
+idf.c1$agc<-"ctl"
+
+idf.c3<-rbind(idf.c1, idf.c)
+
+colnames(idf.c3)[4]<-"RI range"
+
+idf.c3$`RI range`[idf.c3$`RI range`=="25%"]<-" 800-1500"
+idf.c3$`RI range`[idf.c3$`RI range`=="100%"]<-"> 2000"
+
+idf.c3$agc[idf.c3$agc=="ctl"]<-" Target MS2 AGC = 50,000"
+idf.c3$agc[idf.c3$agc=="high"]<-"Target MS2 AGC = 1,000,000"
+
+interp.df3$agc[interp.df3$agc=="ctl"]<-" Target MS2 AGC = 50,000"
+interp.df3$agc[interp.df3$agc=="high"]<-"Target MS2 AGC = 1,000,000"
+
+interp.df3$`RI range`<-" All values"
+# interp.df3$`RI range`[interp.df3$agc=="Target MS2 AGC = 1,000,000"]<-" 800-1500"
+# interp.df3$`RI range`[interp.df3$agc==" Target MS2 AGC = 50,000"]<-"> 2000"
+
+interp.df3$lows<-NA
+interp.df3$lows[interp.df3$agc=="Target MS2 AGC = 1,000,000"]<-"5"
+interp.df3$lows[interp.df3$agc==" Target MS2 AGC = 50,000"]<-"6"
+
+
+idf.c3$group<-NA
+idf.c3$group[idf.c3$agc=="Target MS2 AGC = 1,000,000"]<-"Target MS2 AGC = 1,000,000"
+idf.c3$group[idf.c3$agc==" Target MS2 AGC = 50,000"]<-" Target MS2 AGC = 50,000"
+
+
+idf.c3$lows<-NA
+idf.c3$lows[idf.c3$agc=="Target MS2 AGC = 1,000,000" & idf.c3$`RI range`==" 800-1500"]<-"1"
+idf.c3$lows[idf.c3$agc==" Target MS2 AGC = 50,000"& idf.c3$`RI range`=="> 2000"]<-"2"
+idf.c3$lows[idf.c3$agc=="Target MS2 AGC = 1,000,000" & idf.c3$`RI range`=="> 2000"]<-"3"
+idf.c3$lows[idf.c3$agc==" Target MS2 AGC = 50,000"& idf.c3$`RI range`==" 800-1500"]<-"4"
+
+interp.df3$group<-"  Experiments overlayed"
+interp.df4<-interp.df3[,colnames(idf.c3)]
+
+idf<-rbind(idf.c3, interp.df4)
+
+colnames(idf)[4]<-"RIrange"
+
+ix<-idf[idf$RIrange%in%c(" 800-1500","> 2000"," All values"),]
+
+ix$RIrange2<-factor(ix$RIrange, levels=c(" All values","> 2000"," 800-1500"))
+
+levels(ix$RIrange2)<-c("All peptides","Highly-abundant peptides", "Less-abundant peptides")
+
+facet( ggplot(ix, aes(y=y, x=x, color=agc)) + 
+  geom_point( size=4, alpha=0.5)+
+  geom_errorbar(aes(ymin=y-sd, ymax=y+sd), width=.1, color="black") +
+  theme_bw() + 
+  scale_x_continuous(breaks=interp.df$x, labels= carrier_amounts) +
+  #ggtitle("Correlation by scRI intensity ranges") + 
+  xlab("\nNumber of cells in the isobaric carrier") + 
+  #rremove("legend") +
+  ylab("Correlation\n") + 
+  scale_color_manual(values=c(rgb(0.8,0,0),rgb(0,0,0.8)) ) + 
+    coord_cartesian(ylim=c(0,1))+
+    scale_shape_manual(values=c(15, 19, 17)) + 
+  theme(axis.text.x = element_text(color = "grey20", size = 20, angle = 90, hjust = .5, vjust = .5, face = "plain"),
+        axis.text.y = element_text(color = "grey20", size = 20, angle = 0, hjust = 1, vjust = 0, face = "plain"), 
+        legend.text = element_text(color = "grey20", size = 15, angle = 0, hjust = 1, vjust = 0, face = "plain"),  
+        #legend.title  = element_text(color = "grey20", size = 20, angle = 0, hjust = 1, vjust = 0, face = "plain"),  
+        axis.title.x = element_text(color = "grey20", size = 20, angle = 0, hjust = .5, vjust = 0, face = "plain"),
+        title = element_text(color = "grey20", size = 15, angle = 0, hjust = .5, vjust = 0, face = "plain"),
+        axis.title.y = element_text(color = "grey20", size = 20, angle = 90, hjust = .5, vjust = .5, face = "plain"),
+        legend.position="top",
+        legend.title=element_blank()) +
+  geom_smooth(aes(x=x,y=y, group=lows), method="loess", n=10, span=10, se=F, show.legend = FALSE),
+  facet.by = "RIrange2"
+) + theme(strip.text.x = element_text(size = 12))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
