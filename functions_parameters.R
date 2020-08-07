@@ -48,7 +48,7 @@ k.t<-3
 # Check for presence of required packages for the import script
 req.pkg<-c("plyr", "gridExtra", "stringr", "ggpubr", "Rcpp", "reshape2",
            "ggplot2", "gridExtra", "gridGraphics", "grid", "ggridges",
-           "matrixStats","patchwork", "scales","stylo", "readr", "tidyverse","rlang")
+           "matrixStats","patchwork", "scales","stylo", "readr", "tidyverse","rlang","vctrs","tibble","dplyr")
 
 
 #devtools::install_github("thomasp85/patchwork")
