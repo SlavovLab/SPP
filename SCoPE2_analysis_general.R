@@ -342,12 +342,33 @@ sc.imp[(is.na(sc.imp))]<-0
 batch.N<-table(ev.melt.uniqueID$Raw.file[ev.melt.uniqueID$id%in%colnames(sc.imp)])
 sc.imp<-sc.imp[,!colnames(sc.imp)%in%ev.melt.uniqueID$id[ev.melt.uniqueID$Raw.file%in%names(batch.N)[batch.N==1]]]
 
+# Remove proteins with no variance
+
+rr<-c()
+rawx<-c()
+for(Y in unique(batch.covs)){
+  
+  xt<-sc.imp[,batch.covs%in%Y]
+  
+  vt<-rowVars(xt)
+  
+  rawx<-c(rawx, rep(Y, length(which(vt==0))))
+  
+  rr<-c(rr, which(vt==0) )
+  
+}
+
+table(rawx)
+
+sc.imp<-sc.imp[-rr,]; dim(sc.imp)
+
+
 # Define the batches and model:
 batch.covs <- ev.melt.uniqueID$Raw.file[match(colnames(sc.imp), ev.melt.uniqueID$id)]
 mod<-data.frame(ev.melt.uniqueID$celltype[match(colnames(sc.imp), ev.melt.uniqueID$id)]); colnames(mod)<-"celltype"
 mod<-model.matrix(~as.factor(celltype), data=mod)
 
-matrix.sc.batch <- ComBat(sc.imp, batch=batch.covs, mod=mod, par.prior=T)
+matrix.sc.batch <- ComBat(sc.imp, batch=batch.covs)
 t6<-matrix.sc.batch
 
 # visual sanity checks post-imputation:

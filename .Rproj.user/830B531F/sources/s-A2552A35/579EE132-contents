@@ -3,6 +3,7 @@
 # if (!requireNamespace("BiocManager", quietly = TRUE))
 #   install.packages("BiocManager")
 # BiocManager::install("impute", version = "3.8")
+# BiocManager::install("sva")
 # BiocManager::install("genefilter")
 # n
 
@@ -47,7 +48,7 @@ k.t<-3
 # Check for presence of required packages for the import script
 req.pkg<-c("plyr", "gridExtra", "stringr", "ggpubr", "Rcpp", "reshape2",
            "ggplot2", "gridExtra", "gridGraphics", "grid", "ggridges",
-           "matrixStats","patchwork", "scales","stylo", "readr", "tidyverse")
+           "matrixStats","patchwork", "scales","stylo", "readr", "tidyverse","rlang","vctrs","tibble","dplyr","dbplyr")
 
 
 #devtools::install_github("thomasp85/patchwork")
