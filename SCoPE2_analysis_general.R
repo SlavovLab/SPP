@@ -342,25 +342,25 @@ sc.imp[(is.na(sc.imp))]<-0
 batch.N<-table(ev.melt.uniqueID$Raw.file[ev.melt.uniqueID$id%in%colnames(sc.imp)])
 sc.imp<-sc.imp[,!colnames(sc.imp)%in%ev.melt.uniqueID$id[ev.melt.uniqueID$Raw.file%in%names(batch.N)[batch.N==1]]]
 
-# Remove proteins with no variance
-
-rr<-c()
-rawx<-c()
-for(Y in unique(batch.covs)){
-  
-  xt<-sc.imp[,batch.covs%in%Y]
-  
-  vt<-rowVars(xt)
-  
-  rawx<-c(rawx, rep(Y, length(which(vt==0))))
-  
-  rr<-c(rr, which(vt==0) )
-  
-}
-
-table(rawx)
-
-sc.imp<-sc.imp[-rr,]; dim(sc.imp)
+# ### Uncomment if ComBat fails to execute because there are proteins that don't vary within one or more experiments
+# # Remove proteins with no variance
+# batch.covs <- ev.melt.uniqueID$Raw.file[match(colnames(sc.imp), ev.melt.uniqueID$id)]
+# rr<-c()
+# rawx<-c()
+# for(Y in unique(batch.covs)){
+#   
+#   xt<-sc.imp[,batch.covs%in%Y]
+#   
+#   vt<-rowVars(xt)
+#   
+#   rawx<-c(rawx, rep(Y, length(which(vt==0))))
+#   
+#   rr<-c(rr, which(vt==0) )
+#   
+# }
+# 
+# sc.imp<-sc.imp[-rr,]; dim(sc.imp)
+# ### ^^ Uncomment if ComBat fails to execute because there are proteins that don't vary within one or more experiments
 
 
 # Define the batches and model:
@@ -388,7 +388,13 @@ PCx<-"PC1"
 PCy<-"PC2"
 
 # Data to use:
-matrix.sc.batch<-matrix.sc.batch[!is.na(rownames(matrix.sc.batch)), ]
+
+
+
+pp<-read.csv("~/Downloads/Proteins-processed.csv")
+matrix.sc.batch<-as.matrix(pp[,-1])
+rownames(matrix.sc.batch)<-pp[,1]
+
 mat.sc.imp<-cr_norm_log(matrix.sc.batch)
 
 # Dot product of each protein correlation vector with itself
@@ -414,33 +420,12 @@ plot(1:length(percent_var), percent_var, xlab="PC", ylab="% of variance explaine
 
 # Map meta data
 pca.melt <- melt(scx); colnames(pca.melt)<-c("id","pc","value")
-add.cols<-colnames(ev.melt)[4:7]
-pca.melt[,add.cols]<-NA
-
-for(X in unique(pca.melt$id)){
-
-  pca.melt[pca.melt$id==X, add.cols]<-ev.melt.uniqueID[ev.melt.uniqueID$id==X, add.cols]
-
-}
-
 
 # Re map ...
 pca.display <- dcast(pca.melt, id ~ pc, value.var = "value", fill=NA)
 
-pca.display[,add.cols]<-NA
-
-for(X in unique(pca.display$id)){
-
-  pca.display[pca.display$id==X, add.cols]<-ev.melt.uniqueID[ev.melt.uniqueID$id==X, add.cols]
-
-}
-
-
-# Map to TMT channel
-#pca.display$channel<-c2q[c2q$celltype%in%pca.display$id, "channel"]
-
-# Display celltype
-ggscatter(pca.display, x =PCx, y = PCy , color="celltype", size = 2, alpha=0.5) +
+# Display 
+ggscatter(pca.display, x =PCx, y = PCy ,  size = 2, alpha=0.5) +
   xlab(paste0(PCx,"  (", round(percent_var[1],0),"%)")) +
   ylab(paste0(PCy,"  (", round(percent_var[2],0),"%)")) +
   font("ylab",size=30) +
