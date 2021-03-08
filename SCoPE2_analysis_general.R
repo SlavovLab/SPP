@@ -226,6 +226,8 @@ xd7<-xd6 %>% group_by(id) %>% mutate(cvm=median(cvq, na.rm=T))
 
 xdf<-xd7
 
+print("Number of unique proteins used in calculation:", length(unique(xdf$protein)))
+
 hist(unique(xdf$cvm[xdf$celltype!=your_control_label]), col=rgb(0,1,0,1/4), prob=T, breaks=50, main = "X single cells ", xlab="CV")
 hist(unique(xdf$cvm[xdf$celltype==your_control_label]), col=rgb(1,0,0,1/4), prob=T, add=T, breaks=40)
 
