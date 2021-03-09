@@ -370,7 +370,7 @@ batch.covs <- ev.melt.uniqueID$Raw.file[match(colnames(sc.imp), ev.melt.uniqueID
 mod<-data.frame(ev.melt.uniqueID$celltype[match(colnames(sc.imp), ev.melt.uniqueID$id)]); colnames(mod)<-"celltype"
 mod<-model.matrix(~as.factor(celltype), data=mod)
 
-matrix.sc.batch <- ComBat(sc.imp, batch=batch.covs)
+matrix.sc.batch <- ComBat(sc.imp, batch=batch.covs, mod=mod)
 t6<-matrix.sc.batch
 
 # visual sanity checks post-imputation:
