@@ -1,13 +1,19 @@
-# Scripts and Pipelines for Proteomics (SPP) **SCoPE2**
+# Scripts and Pipelines for Proteomics (SPP)
+-----
 
-Single-Cell ProtEomics by Mass Spectrometry
+**Computational utilities for single-cell proteomics data**
+
 
 <!--![GitHub release](https://img.shields.io/github/release/SlavovLab/DO-MS.svg)-->
 ![GitHub](https://img.shields.io/github/license/SlavovLab/DO-MS.svg)
 
 * [Website](https://scp.slavovlab.net/computational-analysis)
 
-<img src="https://scp.slavovlab.net/assets/images/Single-cell-biology.png" width="70%">
+
+
+<center><img src="https://scp.slavovlab.net/assets/images/Single-cell-biology.png" width="60%"></center>
+
+
 
 
 
@@ -19,7 +25,7 @@ This application has been tested on R >= 3.5.0, OSX 10.14 / Windows 7/8/10. R ca
 
 ### Description
 
-This repository contains a collection of scripts for processing, integrating, and analyzing single-cell proteomics data acquired by mass-spectrometry. It originated from the [SCoPE2 pipeline](https://doi.org/10.5281/zenodo.4339954), which was abstracted and generalized so that it can be used [plexDIA](https://scp.slavovlab.net/plexDIA), [pSCoPE](https://scp.slavovlab.net/pSCoPE), and other types of mass-spec proteomics data.
+This repository contains a collection of scripts and pipelines for processing, integrating, and analyzing single-cell proteomics data acquired by mass-spectrometry. It originated from the [SCoPE2 pipeline](https://doi.org/10.5281/zenodo.4339954), which was abstracted and generalized so that it can be used [plexDIA](https://scp.slavovlab.net/plexDIA), [pSCoPE](https://scp.slavovlab.net/pSCoPE), and other types of mass-spec proteomics data.
 
 
 ------------
