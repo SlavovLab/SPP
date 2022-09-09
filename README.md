@@ -11,8 +11,7 @@
 
 
 
-<center><img src="https://scp.slavovlab.net/assets/images/Single-cell-biology.png" width="60%"></center>
-
+[![Scripts and Pipelines for Single-Cell Proteomics](https://scp.slavovlab.net/assets/images/Single-cell-biology.png){: width="50%" .center-image}](https://scp.slavovlab.net/computational-analysis){:title="Computational utilities for single-cell proteomics data"}
 
 
 
@@ -31,7 +30,7 @@ This repository contains a collection of scripts and pipelines for processing, i
 ------------
 
 ## About the project
-The code on this repository has been developed as part of multiple projects in the [Slavov Laboratory](https://slavovlab.net), and more information about these projects can be found at [scp.slavovlab.net](https://scp.slavovlab.net/);
+The code on this repository has been developed as part of multiple projects in the [Slavov Laboratory](https://slavovlab.net), and more information about these projects can be found at [scp.slavovlab.net](https://scp.slavovlab.net/).
 
 
 ### License
