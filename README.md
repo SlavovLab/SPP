@@ -11,8 +11,7 @@
 
 
 
-[![Scripts and Pipelines for Single-Cell Proteomics](https://scp.slavovlab.net/assets/images/Single-cell-biology.png){: width="50%" .center-image}](https://scp.slavovlab.net/computational-analysis){:title="Computational utilities for single-cell proteomics data"}
-
+<center><img src="https://scp.slavovlab.net/assets/images/Single-cell-biology.png" width="40%"></center>
 
 
 
