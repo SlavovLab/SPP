@@ -1,7 +1,7 @@
 # Scripts and Pipelines for Proteomics (SPP)
------
 
-**Computational utilities for single-cell proteomics data**
+
+## **Computational utilities for single-cell proteomics data**
 
 
 <!--![GitHub release](https://img.shields.io/github/release/SlavovLab/DO-MS.svg)-->
