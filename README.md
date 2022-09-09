@@ -25,7 +25,7 @@ This application has been tested on R >= 3.5.0, OSX 10.14 / Windows 7/8/10. R ca
 
 ### Description
 
-This repository contains a collection of scripts and pipelines for processing, integrating, and analyzing single-cell proteomics data acquired by mass-spectrometry. It originated from the [SCoPE2 pipeline](https://doi.org/10.5281/zenodo.4339954), which was abstracted and generalized so that it can be used [plexDIA](https://scp.slavovlab.net/plexDIA), [pSCoPE](https://scp.slavovlab.net/pSCoPE), and other types of mass-spec proteomics data.
+This repository contains a collection of scripts and pipelines for processing, integrating, and analyzing single-cell proteomics data acquired by mass-spectrometry. The code originated from the [SCoPE2 pipeline](https://doi.org/10.5281/zenodo.4339954), which was abstracted and generalized so that it can be used for analyzing data from other projects, including data acquired by [plexDIA](https://scp.slavovlab.net/plexDIA), [pSCoPE](https://scp.slavovlab.net/pSCoPE), and other [mass-spec methods](https://scp.slavovlab.net) for single-cell proteomics.
 
 
 ------------
