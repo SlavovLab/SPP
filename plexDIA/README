@@ -1,0 +1,11 @@
+This folder includes a pipeline for single-cell plexDIA data analysis. The functions_parameters.R and py_isoEnv.py files contain some required functions for the analysis. The SC_plexDIA.Rmd is an R markdown with code to perform single-cell plexDIA anlysis. 
+
+Step 1) Search single-cell plexDIA data with DIA-NN verion 1.8.1 or beyond, using the commmands detailed in the plexDIA article. https://www.nature.com/articles/s41587-022-01389-w
+
+Step 2) Generate a meta file with columns "Raw", "Celltype", "Label", and "LC_batch", where each row represents a single cell. 
+"Raw" is the run name, 
+"Celltype" is the celltype,
+"Label" is a number specifying the delta mass offset (e.g. 0, 4, or 8 for mTRAQ labels)
+"LC_batch" is a unique string that marks runs which were acquired with the same LC settings/column (e.g. "A", "B", "C"... etc).
+
+Step 3) Set the files paths to DIA-NN reports in the SC_plexDIA.Rmd and run. 
